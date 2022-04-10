@@ -61,6 +61,22 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
+
+///// user names /////
+
+const createUsernames = function (accs) {
+
+  accs.forEach(function(acc) {
+      acc.username = acc.owner
+      .toLowerCase()
+      .split(" ")
+      .map((name) => name[0])
+      .join("");
+  })
+};
+
+createUsernames(accounts);
+
 const displayMovements = function (movements) {
   containerMovements.innerHTML = '';
 
@@ -69,9 +85,8 @@ const displayMovements = function (movements) {
 
     const html = `
         <div class="movements__row">
-            <div class="movements__type movements__type--${type}">${
-      i + 1
-    } ${type}</div>
+            <div class="movements__type movements__type--${type}">${i + 1
+      } ${type}</div>
             <div class="movements__date"></div>
             <div class="movements__value">${mov}</div>
         </div>
@@ -81,9 +96,63 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
+
+
+const calcDisplaySummary = function (acc) {
+  const income = movements.filter(mov => mov > 0).reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${income}£`;
+
+  const out = acc.movements.filter(mov => mov < 0).reduce((acc, mov) => acc - mov, 0);
+  labelSumOut.textContent = `${out}£`
+
+  const interest = acc.movements.filter(mov => mov > 0).map(deposit => deposit * acc.interestRate / 100).filter((int, i, arr) => int >= 1).reduce((acc, int) => acc + int)
+
+  labelSumInterest.textContent = `${interest}£`
+}
+
+
+
+// balance 
+const calcDisplayBalance = function (movements) {
+  const balance = movements.reduce((acc, cur) => acc + cur, 0);
+  labelBalance.textContent = `${balance} EUR`;
+}
+
+
 
 // console.log(containerMovements.innerHTML);
+
+
+
+// EVENT handlers ////////////////////////////////
+let currentAccount;
+// LOGIN //////////////////////////////
+btnLogin.addEventListener('click', function(e) {
+  e.preventDefault(); 
+
+  currentAccount = accounts.find(acc => acc.username === inputLoginUsername.value);
+// check if pin is valid
+  if(currentAccount?.pin === Number(inputLoginPin.value)) {
+    console.log('Login');
+    // Display UI and welcome msg
+    labelWelcome.textContent = `Weclome back, ${currentAccount.owner.split(' ')[0]}`;
+
+    // clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    // loose focus
+    inputLoginPin.blur();
+
+    containerApp.style.opacity = 100;
+    // Display movements
+    displayMovements(currentAccount.movements);
+    //Display balance 
+    calcDisplayBalance(currentAccount.movements);
+    // Dkisplay summary
+    calcDisplaySummary(currentAccount);
+  }
+
+  console.log(currentAccount);
+});
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
@@ -114,3 +183,8 @@ const movementsDescription = movements.map(
       mov
     )}`
 );
+
+const account = accounts.find(acc => acc.owner === 'Jessica Davis');
+console.log(account);
+
+console.log(accounts);

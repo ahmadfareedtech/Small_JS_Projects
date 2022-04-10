@@ -94,8 +94,8 @@
      gap: 2rem;
 
       /* Note this creates the fade in/out animation  */
-      /* opacity: 0; 
-      transition: all 1s; */
+      opacity: 0; 
+      transition: all 1s;
  }
 
  .balance {
