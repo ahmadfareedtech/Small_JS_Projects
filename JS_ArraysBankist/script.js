@@ -77,10 +77,12 @@ const createUsernames = function (accs) {
 
 createUsernames(accounts);
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
 
-  movements.forEach(function (mov, i) {
+  const movs = sort ? movements.slice().sort((a,b)=> a - b) : movements;
+
+  movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
 
     const html = `
@@ -172,6 +174,20 @@ if(amount > 0 && receiverAcc && amount <= currentAccount.balance && receiverAcc?
 } 
 });
 
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if(amount > 0 && currentAccount,movements.some(mov => mov > amount * 0.1)) {
+    // add movement 
+    currentAccount.movements.push(amount);
+
+    // update ui
+    updateUI(currentAccount);
+  }
+});
+
 
 btnClose.addEventListener('click', function(e){
   e.preventDefault();
@@ -189,6 +205,15 @@ btnClose.addEventListener('click', function(e){
   }
   
   inputCloseUsername.value = inputClosePin.value = '';
+});
+
+//state variable to know sort or not
+let sorted = false;
+
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
 });
 
 /////////////////////////////////////////////////
@@ -223,6 +248,19 @@ const movementsDescription = movements.map(
 );
 
 const account = accounts.find(acc => acc.owner === 'Jessica Davis');
-console.log(account);
+// console.log(account);
 
-console.log(accounts);
+// console.log(accounts);
+
+// flat 
+
+// const accountMovements = accounts.map(acc => acc.movements);
+// console.log(accountMovements);
+
+// const allMovements = accountMovements.flat();
+// console.log(allMovements);
+// const overalBalance = allMovements.reduce((acc, mov) => acc + mov, 0);
+// console.log(overalBalance);
+
+const overalBalance1 = accounts.flatMap(acc => acc.movements).reduce((acc, mov) => acc + mov, 0);
+console.log(overalBalance1);
