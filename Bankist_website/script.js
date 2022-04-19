@@ -37,9 +37,8 @@ document.addEventListener('keydown', function (e) {
   }
 });
 
-
 ///////////////////////////////////////////////
-// button scrolling 
+// button scrolling
 btnScrollTo.addEventListener('click', function (e) {
   const s1coords = section1.getBoundingClientRect();
   //   console.log(s1coords);
@@ -89,7 +88,6 @@ document.querySelector('.nav__links').addEventListener('click', function (e) {
   e.preventDefault();
   // Matching strategy
   if (e.target.classList.contains('nav__link')) {
-
     const id = e.target.getAttribute('href'); // get relative path
     // console.log(id);
     document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
@@ -104,13 +102,15 @@ tabsContainer.addEventListener('click', function (e) {
   if (!clicked) return;
   tabs.forEach(t => t.classList.remove('operations__tab--active'));
   // remove active class
-  tabsContent.forEach(c => c.classList.remove('operations__content--active'))
+  tabsContent.forEach(c => c.classList.remove('operations__content--active'));
 
   // activate tab
   clicked.classList.add('operations__tab--active');
 
   // active content area
-  document.querySelector(`.operations__content--${clicked.dataset.tab}`).classList.add('operations__content--active');
+  document
+    .querySelector(`.operations__content--${clicked.dataset.tab}`)
+    .classList.add('operations__content--active');
 });
 
 // menue fade animation
@@ -125,14 +125,12 @@ const handleHover = function (e) {
       if (el !== link) el.style.opacity = this;
     });
     logo.style.opacity = this;
-
   }
 };
-// passing an "argument" into handler 
+// passing an "argument" into handler
 nav.addEventListener('mouseover', handleHover.bind(0.5));
 
 nav.addEventListener('mouseout', handleHover.bind(1));
-
 
 ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
@@ -221,7 +219,6 @@ const logo = document.querySelector('.nav__logo');
 // don't use below code bcz it overrides all other classes
 // logo.className = 'jonas';
 
-
 // events
 
 // const h1 = document.querySelector('h1');
@@ -273,7 +270,7 @@ const logo = document.querySelector('.nav__logo');
 //   false // for listening while capturing : top down propagation of event
 // );
 
-// DOM Traversing 
+// DOM Traversing
 
 const h1 = document.querySelector('h1');
 
@@ -306,6 +303,110 @@ const h1 = document.querySelector('h1');
 //   if (el !== h1) el.style.transform = 'scale(0.5)'
 // })
 
+// sticky navigation
 
+const initialCoords = section1.getBoundingClientRect();
 
+window.addEventListener('scroll', function () {
+  // should be avoided
 
+  if (window.scrollY > initialCoords.top) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
+});
+
+// Intersection observer API /////////////////////////////////////
+// const obsCallBack = function (entries, observer) {
+//   entries.forEach(entry => {
+//     console.log(entry);
+//   });
+// };
+
+// const obsOptions = {
+//   root: null,
+//   // threshold: 0.1, // 10%
+//   threshold: [0, 0.2], // 0% , 20%
+// };
+
+// const observer = new IntersectionObserver(obsCallBack, obsOptions);
+// observer.observe(section1);
+
+///////// make nav sticy with above api ///////////
+const header1 = document.querySelector('.header');
+// get the hight of nav dynamically
+const navHeight = nav.getBoundingClientRect().height;
+// console.log(navHeight);
+
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  // console.log(entry);
+  if (!entry.isIntersecting) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
+};
+
+const headerObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  // rootMargin: '-90px',
+  rootMargin: `-${navHeight}px`,
+});
+
+headerObserver.observe(header1);
+
+////////// reveal sections
+const allsections = document.querySelectorAll('.section');
+
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  // console.log(entry);
+  if (!entry.isIntersecting) return;
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+
+allsections.forEach(function (section) {
+  sectionObserver.observe(section);
+  // section.classList.add('section--hidden');
+});
+
+/// lazy loading images
+const imgTargets = document.querySelectorAll('img[data-src]');
+
+const loadImg = function (entries, observer) {
+  const [entry] = entries;
+  // console.log(entry);
+
+  if (!entry.isIntersecting) return;
+
+  // replace src with data-src
+  entry.target.src = entry.target.dataset.src;
+  entry.target.addEventListener('load', function () {
+    entry.target.classList.remove('lazy-img');
+  });
+
+  observer.unobserve(entry.target);
+};
+
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+  rootMargin: '200px',
+});
+
+imgTargets.forEach(img => imgObserver.observe(img));
+
+// Slider /////////////////////////////////////////////////////////////////////////////
+const slides = document.querySelectorAll('.slide');
+
+const slider = document.querySelector('.slider');
+slider.style.transform = 'scale(0.5)';
+slider.style.overflow = 'visible';
+
+slides.forEach((s, i) => (s.style.transform = `translateX(${100 * i})`));
+// 0%, 100%, 200%, 300%
+
+// vid #197 10:00
